@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday, My Love! ❤️</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Dancing+Script:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Floating Background Elements (Hearts & Sparkles) -->
+  <div class="bg-decorations" id="bgDecorations"></div>
+  <canvas id="confettiCanvas"></canvas>
+
+  <!-- Sound / Music Floating Control -->
+  <div class="floating-controls">
+    <button id="musicToggleBtn" class="control-btn" title="Nyalakan / Matikan Musik Box">
+      <span id="musicIcon">🎵</span>
+      <span class="btn-tooltip">Musik Box</span>
+    </button>
+    <button id="customizerBtn" class="control-btn" title="Edit Isi Surat & Foto">
+      <span>✏️</span>
+      <span class="btn-tooltip">Edit Surat</span>
+    </button>
+  </div>
+
+  <main class="main-container">
+
+    <!-- Screen 1: Envelope (Amplop) -->
+    <section id="envelopeSection" class="section envelope-section active">
+      <div class="envelope-wrapper">
+        <div class="envelope-hint">
+          <span class="sparkle-icon">✨</span>
+          Ada surat spesial untukmu hari ini. Klik amplop untuk membukanya!
+          <span class="sparkle-icon">✨</span>
+        </div>
+
+        <div class="envelope" id="envelope">
+          <div class="envelope-back"></div>
+          
+          <div class="letter-preview">
+            <div class="mini-letter-content">
+              <span class="heart-mini">💖</span>
+              <p>Happy Birthday, Love</p>
+            </div>
+          </div>
+
+          <div class="envelope-front"></div>
+          <div class="envelope-flap" id="envelopeFlap"></div>
+
+          <!-- Wax Seal -->
+          <div class="wax-seal" id="waxSeal">
+            <div class="seal-inner">
+              <span class="seal-heart">❤️</span>
+              <span class="seal-text">OPEN</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="click-to-open-text">Tap di sini untuk membuka 💌</p>
+      </div>
+    </section>
+
+    <!-- Screen 2: Open Letter & Interactive Celebration -->
+    <section id="letterSection" class="section letter-section">
+      
+      <div class="celebration-container">
+
+        <!-- Top Header Ribbon -->
+        <div class="celebration-header">
+          <span class="ribbon-badge">Special Birthday Edition 🎂</span>
+          <h1 class="main-title">Happy Birthday!</h1>
+          <p class="subtitle" id="displaySubtitle">Untuk seseorang yang paling berharga dalam hidupku ✨</p>
+        </div>
+
+        <!-- Interactive Birthday Cake & Candles -->
+        <div class="cake-card">
+          <div class="cake-container" id="cakeContainer" title="Klik lilin untuk meniupnya!">
+            <div class="candle" id="candle">
+              <div class="flame" id="flame"></div>
+              <div class="smoke" id="smoke"></div>
+            </div>
+            <div class="cake-layer cake-top">
+              <div class="icing"></div>
+              <div class="icing-drips"></div>
+            </div>
+            <div class="cake-layer cake-middle"></div>
+            <div class="cake-layer cake-bottom"></div>
+            <div class="plate"></div>
+          </div>
+          <p class="cake-instruction" id="cakeInstruction">
+            🎂 <em>Buat harapan dalam hati, lalu klik lilin untuk meniupnya!</em>
+          </p>
+          <div class="wish-granted-banner" id="wishBanner">
+            ✨ Semoga semua impian dan doa manismu terkabul! Amin! 💖 ✨
+          </div>
+        </div>
+
+        <!-- The Romantic Letter Paper -->
+        <article class="letter-paper">
+          <div class="paper-pin">📌</div>
+          <div class="letter-header">
+            <span class="letter-date" id="displayDate">14 September</span>
+            <div class="letter-salutation">
+              <span class="salutation-dear">Dear,</span>
+              <h2 class="recipient-name" id="displayRecipient">Sayangku ❤️</h2>
+            </div>
+          </div>
+
+          <div class="letter-body" id="displayLetterBody">
+            <p>
+              Selamat ulang tahun untuk orang yang paling berharga dalam hidupku. 
+            </p>
+            <p>
+              Terima kasih sudah lahir ke dunia ini, dan terima kasih sudah hadir membawa begitu banyak kehangatan, tawa, dan rasa nyaman yang tak tergantikan. Bersamamu, hal-hal sederhana berubah menjadi momen paling istimewa.
+            </p>
+            <p>
+              Di usiamu yang baru ini, aku berdoa semoga kamu selalu dilimpahi kesehatan, kebahagiaan tanpa batas, dan kelapangan dalam meraih setiap mimpi-mimpimu. Semoga semesta selalu memelukmu dengan kebaikan, sehangat senyummu yang selalu menerangi hariku.
+            </p>
+            <p>
+              Apapun yang akan kita hadapi nanti, ingatlah bahwa kamu tidak pernah berjuang sendirian. Aku akan selalu ada di sini—menjadi pendukung nomor satumu, tempatmu bercerita, dan rumah tempatmu pulang.
+            </p>
+            <p class="letter-closing-statement">
+              I love you more than words can say. Sekali lagi, selamat ulang tahun, cintaku! 💕
+            </p>
+          </div>
+
+          <div class="letter-footer">
+            <p class="signature-note">Dengan segenap cintaku,</p>
+            <p class="signature-name" id="displaySender">Dari seseorang yang selalu menyayangimu ✨</p>
+          </div>
+        </article>
+
+        <!-- Memories & Photo Gallery (Polaroid Style) -->
+        <section class="polaroid-gallery-section">
+          <h3 class="gallery-title">📸 Momen Manis Kita</h3>
+          <div class="polaroid-grid" id="polaroidGrid">
+            
+            <div class="polaroid-card tilt-left">
+              <div class="polaroid-img-wrapper" id="photoWrapper1">
+                <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&auto=format&fit=crop&q=80" alt="Memori 1" class="polaroid-img" id="polaroidImg1">
+              </div>
+              <p class="polaroid-caption" id="caption1">Senyum manismu yang selalu kurindukan 🥰</p>
+            </div>
+
+            <div class="polaroid-card tilt-right">
+              <div class="polaroid-img-wrapper" id="photoWrapper2">
+                <img src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=600&auto=format&fit=crop&q=80" alt="Memori 2" class="polaroid-img" id="polaroidImg2">
+              </div>
+              <p class="polaroid-caption" id="caption2">Setiap detik bersamamu adalah kebahagiaan 🌟</p>
+            </div>
+
+            <div class="polaroid-card tilt-center">
+              <div class="polaroid-img-wrapper" id="photoWrapper3">
+                <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&auto=format&fit=crop&q=80" alt="Memori 3" class="polaroid-img" id="polaroidImg3">
+              </div>
+              <p class="polaroid-caption" id="caption3">Semoga kita terus bersama selamanya ❤️</p>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- Action Buttons -->
+        <div class="celebration-actions">
+          <button id="replayConfettiBtn" class="action-btn primary-btn">
+            🎉 Hujan Konfeti & Cinta!
+          </button>
+          <button id="openCustomizerBtnBottom" class="action-btn secondary-btn">
+            ✏️ Ganti Nama / Tulisan Sendiri
+          </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+          <p>Dibuat sepenuh hati untuk hari spesialmu 💐</p>
+        </footer>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Modal: Customizer (Ganti Nama, Pesan, Foto Tanpa Koding) -->
+  <div class="modal-overlay" id="customizerModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>✨ Kustomisasi Surat Ulang Tahun</h3>
+        <button class="modal-close" id="closeModalBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-tip">💡 Kamu bisa mengubah nama pasanganmu, isi pesan, foto, dan tanggal agar semakin personal!</p>
+
+        <!-- Template Selector -->
+        <div class="form-group">
+          <label for="templateSelect">Pilih Gaya Ucapan:</label>
+          <select id="templateSelect" class="form-control">
+            <option value="romantic">1. Romantis, Hangat & Mendalam (Default)</option>
+            <option value="playful">2. Manis, Ceria & Menggemaskan</option>
+            <option value="poetic">3. Puitis & Menyentuh Kalbu</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="inputRecipient">Nama Panggilan Pasangan:</label>
+            <input type="text" id="inputRecipient" class="form-control" placeholder="Contoh: Sayangku / Alya / Dika">
+          </div>
+          <div class="form-group half">
+            <label for="inputSender">Nama Pengirim (Namamu):</label>
+            <input type="text" id="inputSender" class="form-control" placeholder="Contoh: Pacarmu yang cerewet / Rian">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="inputDate">Tanggal:</label>
+          <input type="text" id="inputDate" class="form-control" placeholder="Contoh: 14 September 2026">
+        </div>
+
+        <div class="form-group">
+          <label for="inputLetterBody">Isi Surat / Pesan Cinta:</label>
+          <textarea id="inputLetterBody" rows="7" class="form-control" placeholder="Tuliskan isi hatimu di sini..."></textarea>
+        </div>
+
+        <div class="photo-upload-section">
+          <h4>🖼️ Ganti Foto Kenangan (Opsional):</h4>
+          <p class="small-text">Bisa pilih foto langsung dari HP/komputermu:</p>
+          
+          <div class="photo-inputs">
+            <div class="photo-input-item">
+              <label>Foto 1:</label>
+              <input type="file" id="filePhoto1" accept="image/*" class="file-input">
+            </div>
+            <div class="photo-input-item">
+              <label>Foto 2:</label>
+              <input type="file" id="filePhoto2" accept="image/*" class="file-input">
+            </div>
+            <div class="photo-input-item">
+              <label>Foto 3:</label>
+              <input type="file" id="filePhoto3" accept="image/*" class="file-input">
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button id="resetDefaultsBtn" class="btn-secondary">Reset Semula</button>
+        <button id="saveCustomizerBtn" class="btn-primary">Simpan Perubahan ❤️</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Element for Custom Music (Fallback to Web Audio Synth) -->
+  <audio id="bgAudio" loop preload="auto"></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
