@@ -92,6 +92,8 @@ const inputLetterBody = document.getElementById("inputLetterBody");
 const filePhoto1 = document.getElementById("filePhoto1");
 const filePhoto2 = document.getElementById("filePhoto2");
 const filePhoto3 = document.getElementById("filePhoto3");
+const fileAudio = document.getElementById("fileAudio");
+const bgAudio = document.getElementById("bgAudio");
 const polaroidImg1 = document.getElementById("polaroidImg1");
 const polaroidImg2 = document.getElementById("polaroidImg2");
 const polaroidImg3 = document.getElementById("polaroidImg3");
@@ -99,8 +101,9 @@ const polaroidImg3 = document.getElementById("polaroidImg3");
 // State
 let isLetterOpened = false;
 let isMusicPlaying = false;
+let isAudioElementActive = false;
 let audioCtx = null;
-let musicInterval = null;
+let bestPartLoopTimer = null;
 
 /* =========================================================
    1. LOCAL STORAGE & DATA LOADING
@@ -142,6 +145,9 @@ function applyDataToDOM(data) {
   if (data.photo1 && polaroidImg1) polaroidImg1.src = data.photo1;
   if (data.photo2 && polaroidImg2) polaroidImg2.src = data.photo2;
   if (data.photo3 && polaroidImg3) polaroidImg3.src = data.photo3;
+
+  // Load custom audio if stored
+  if (data.customAudio && bgAudio) bgAudio.src = data.customAudio;
 }
 
 function escapeHTML(str) {
@@ -161,7 +167,7 @@ function openEnvelope() {
 
   // Play gentle sound
   initAudio();
-  startMusicBox();
+  startMusic();
 
   // Burst initial celebratory confetti
   fireConfettiBurst();
@@ -209,33 +215,39 @@ cakeContainer.addEventListener("click", () => {
 });
 
 /* =========================================================
-   4. OFFLINE MUSIC BOX (WEB AUDIO API SYNTHESIZER)
+   4. "BEST PART - DANIEL CAESAR" INSTRUMENTAL MUSIC ENGINE
    ========================================================= */
-// Happy Birthday notes (frequency in Hz)
-const NOTES = {
-  C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23,
-  G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25,
-  D5: 587.33, E5: 659.25, F5: 698.46, G5: 783.99
+
+// Guitar note frequencies (in Hz)
+const GUITAR_NOTES = {
+  G2: 98.00, A2: 110.00, Bb2: 116.54, D3: 146.83,
+  F3: 174.61, Fs3: 185.00, G3: 196.00, A3: 220.00, B3: 246.94,
+  C4: 261.63, Cs4: 277.18, D4: 293.66, E4: 329.63, F4: 349.23,
+  Fs4: 369.99, G4: 392.00, A4: 440.00
 };
 
-// Gentle music box tune arrangement of Happy Birthday
-const MELODY = [
-  { note: NOTES.C4, dur: 350 }, { note: NOTES.C4, dur: 250 },
-  { note: NOTES.D4, dur: 500 }, { note: NOTES.C4, dur: 500 },
-  { note: NOTES.F4, dur: 500 }, { note: NOTES.E4, dur: 900 },
-
-  { note: NOTES.C4, dur: 350 }, { note: NOTES.C4, dur: 250 },
-  { note: NOTES.D4, dur: 500 }, { note: NOTES.C4, dur: 500 },
-  { note: NOTES.G4, dur: 500 }, { note: NOTES.F4, dur: 900 },
-
-  { note: NOTES.C4, dur: 350 }, { note: NOTES.C4, dur: 250 },
-  { note: NOTES.C5, dur: 500 }, { note: NOTES.A4, dur: 500 },
-  { note: NOTES.F4, dur: 500 }, { note: NOTES.E4, dur: 500 },
-  { note: NOTES.D4, dur: 800 },
-
-  { note: NOTES.B4, dur: 350 }, { note: NOTES.B4, dur: 250 },
-  { note: NOTES.A4, dur: 500 }, { note: NOTES.F4, dur: 500 },
-  { note: NOTES.G4, dur: 500 }, { note: NOTES.F4, dur: 1200 }
+// "Best Part" by Daniel Caesar (Dmaj7 -> Am7 -> Gmaj7 -> Bbmaj7)
+const BEST_PART_PROGRESSION = [
+  {
+    bass: GUITAR_NOTES.D3,
+    chord: [GUITAR_NOTES.A3, GUITAR_NOTES.Cs4, GUITAR_NOTES.Fs4, GUITAR_NOTES.A4],
+    upbeat: [GUITAR_NOTES.Cs4, GUITAR_NOTES.Fs4, GUITAR_NOTES.A4]
+  },
+  {
+    bass: GUITAR_NOTES.A2,
+    chord: [GUITAR_NOTES.G3, GUITAR_NOTES.C4, GUITAR_NOTES.E4, GUITAR_NOTES.G4],
+    upbeat: [GUITAR_NOTES.C4, GUITAR_NOTES.E4, GUITAR_NOTES.G4]
+  },
+  {
+    bass: GUITAR_NOTES.G2,
+    chord: [GUITAR_NOTES.Fs3, GUITAR_NOTES.B3, GUITAR_NOTES.D4, GUITAR_NOTES.Fs4],
+    upbeat: [GUITAR_NOTES.B3, GUITAR_NOTES.D4, GUITAR_NOTES.Fs4]
+  },
+  {
+    bass: GUITAR_NOTES.Bb2,
+    chord: [GUITAR_NOTES.F3, GUITAR_NOTES.A3, GUITAR_NOTES.D4, GUITAR_NOTES.F4],
+    upbeat: [GUITAR_NOTES.A3, GUITAR_NOTES.D4, GUITAR_NOTES.F4]
+  }
 ];
 
 function initAudio() {
@@ -250,90 +262,190 @@ function initAudio() {
   }
 }
 
-function playMusicBoxNote(freq, duration = 600) {
+// Warm acoustic guitar pluck synthesis
+function playGuitarString(freq, time, duration = 1.6, volume = 0.18) {
   if (!audioCtx || !isMusicPlaying) return;
-  
   try {
     const osc = audioCtx.createOscillator();
+    const oscBody = audioCtx.createOscillator();
+    const filter = audioCtx.createBiquadFilter();
     const gain = audioCtx.createGain();
 
-    // Pure bell/celesta sound
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    // Body warmth (triangle) + crisp attack (sine overtone)
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(freq, time);
 
-    // Envelope: quick attack, exponential sweet decay
-    const now = audioCtx.currentTime;
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.18, now + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + (duration / 1000) * 1.5);
+    oscBody.type = "sine";
+    oscBody.frequency.setValueAtTime(freq * 0.5, time);
 
-    osc.connect(gain);
+    // Warm guitar lowpass tone filter
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(2400, time);
+    filter.frequency.exponentialRampToValueAtTime(650, time + 0.35);
+
+    // Dynamic pluck envelope
+    gain.gain.setValueAtTime(0, time);
+    gain.gain.linearRampToValueAtTime(volume, time + 0.006);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+
+    osc.connect(filter);
+    oscBody.connect(filter);
+    filter.connect(gain);
     gain.connect(audioCtx.destination);
 
-    osc.start(now);
-    osc.stop(now + (duration / 1000) * 1.6);
-  } catch (e) {
-    // Audio ignore
-  }
+    osc.start(time);
+    oscBody.start(time);
+    osc.stop(time + duration + 0.05);
+    oscBody.stop(time + duration + 0.05);
+  } catch (e) {}
+}
+
+// Fingerstyle guitar body slap / string tap (iconic rhythm of Best Part)
+function playGuitarSlap(time) {
+  if (!audioCtx || !isMusicPlaying) return;
+  try {
+    const bufferSize = Math.floor(audioCtx.sampleRate * 0.04);
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.22));
+    }
+
+    const whiteNoise = audioCtx.createBufferSource();
+    whiteNoise.buffer = buffer;
+
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.value = 1300;
+    filter.Q.value = 1.0;
+
+    const gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(0.07, time);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.04);
+
+    whiteNoise.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    whiteNoise.start(time);
+  } catch (e) {}
 }
 
 function playSparkleChime() {
   initAudio();
   if (!audioCtx) return;
-  const chimeNotes = [NOTES.C5, NOTES.E5, NOTES.G5, NOTES.C5 * 2];
+  const chimeNotes = [523.25, 659.25, 783.99, 1046.50];
   chimeNotes.forEach((freq, idx) => {
     setTimeout(() => {
       try {
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = "triangle";
+        osc.type = "sine";
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.7);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.75);
+        osc.stop(audioCtx.currentTime + 0.85);
       } catch(e) {}
-    }, idx * 100);
+    }, idx * 90);
   });
 }
 
-function startMusicBox() {
+// Acoustic guitar playback loop of "Best Part"
+let currentChordIdx = 0;
+const MEASURE_DUR_MS = 3100; // ~77 BPM
+
+function playBestPartMeasure() {
+  if (!isMusicPlaying || isAudioElementActive) return;
+  const chordData = BEST_PART_PROGRESSION[currentChordIdx];
+  const now = audioCtx.currentTime + 0.05;
+
+  // 1. Beat 1: Bass note + arpeggiated chord strum
+  playGuitarString(chordData.bass, now, 2.0, 0.22);
+  chordData.chord.forEach((freq, i) => {
+    playGuitarString(freq, now + (i * 0.025), 1.8, 0.16);
+  });
+
+  // 2. Beat 2: String slap / percussion tap
+  playGuitarSlap(now + 0.77);
+
+  // 3. Beat 2.5: Upbeat chord pluck
+  chordData.upbeat.forEach((freq) => {
+    playGuitarString(freq, now + 1.15, 1.2, 0.14);
+  });
+
+  // 4. Beat 3: Inner root bounce
+  playGuitarString(chordData.bass, now + 1.54, 1.0, 0.12);
+
+  // 5. Beat 4: String slap / percussion tap
+  playGuitarSlap(now + 2.31);
+
+  // 6. Beat 4.5: Subtle chord transition pluck
+  playGuitarString(chordData.chord[1], now + 2.70, 0.8, 0.10);
+  playGuitarString(chordData.chord[2], now + 2.72, 0.8, 0.10);
+
+  currentChordIdx = (currentChordIdx + 1) % BEST_PART_PROGRESSION.length;
+  bestPartLoopTimer = setTimeout(playBestPartMeasure, MEASURE_DUR_MS);
+}
+
+function startBestPartSynth() {
+  initAudio();
+  clearTimeout(bestPartLoopTimer);
+  currentChordIdx = 0;
+  playBestPartMeasure();
+}
+
+function stopBestPartSynth() {
+  clearTimeout(bestPartLoopTimer);
+}
+
+// Unified Music Controller (MP3 Audio Element Priority + Web Audio Acoustic Fallback)
+function startMusic() {
   initAudio();
   if (isMusicPlaying) return;
   isMusicPlaying = true;
   musicToggleBtn.classList.add("playing");
   musicIcon.textContent = "🎶";
 
-  let step = 0;
-  function playLoop() {
-    if (!isMusicPlaying) return;
-    const current = MELODY[step];
-    playMusicBoxNote(current.note, current.dur);
+  // Check if custom audio or local best-part.mp3 is available
+  const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+  const audioSource = savedData.customAudio || "best-part.mp3";
 
-    const delay = current.dur + 120;
-    step = (step + 1) % MELODY.length;
-    musicInterval = setTimeout(playLoop, delay);
+  if (!bgAudio.src || !bgAudio.src.includes(audioSource)) {
+    bgAudio.src = audioSource;
   }
-  playLoop();
+
+  bgAudio.play().then(() => {
+    isAudioElementActive = true;
+  }).catch(() => {
+    // If local mp3 not present or blocked by browser, run Best Part Acoustic Guitar Synth!
+    isAudioElementActive = false;
+    startBestPartSynth();
+  });
 }
 
-function stopMusicBox() {
+function stopMusic() {
   isMusicPlaying = false;
-  clearTimeout(musicInterval);
+  if (isAudioElementActive) {
+    bgAudio.pause();
+    isAudioElementActive = false;
+  }
+  stopBestPartSynth();
   musicToggleBtn.classList.remove("playing");
   musicIcon.textContent = "🔇";
 }
 
-musicToggleBtn.addEventListener("click", () => {
+function toggleMusic() {
   if (isMusicPlaying) {
-    stopMusicBox();
+    stopMusic();
   } else {
-    initAudio();
-    startMusicBox();
+    startMusic();
   }
-});
+}
+
+musicToggleBtn.addEventListener("click", toggleMusic);
 
 /* =========================================================
    5. LIGHTWEIGHT CANVASCALL CONFETTI SYSTEM
@@ -566,6 +678,17 @@ saveCustomizerBtn.addEventListener("click", () => {
     });
   }
 
+  if (fileAudio && fileAudio.files[0]) {
+    pendingLoads++;
+    const audioReader = new FileReader();
+    audioReader.onload = function(e) {
+      updatedData.customAudio = e.target.result;
+      bgAudio.src = e.target.result;
+      if (--pendingLoads === 0) saveAll();
+    };
+    audioReader.readAsDataURL(fileAudio.files[0]);
+  }
+
   if (pendingLoads === 0) {
     saveAll();
   }
@@ -578,6 +701,8 @@ resetDefaultsBtn.addEventListener("click", () => {
     polaroidImg1.src = "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&auto=format&fit=crop&q=80";
     polaroidImg2.src = "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=600&auto=format&fit=crop&q=80";
     polaroidImg3.src = "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&auto=format&fit=crop&q=80";
+    bgAudio.src = "best-part.mp3";
+    if (fileAudio) fileAudio.value = "";
     closeModal();
   }
 });

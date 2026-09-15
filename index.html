@@ -17,11 +17,11 @@
 
   <!-- Sound / Music Floating Control -->
   <div class="floating-controls">
-    <button id="musicToggleBtn" class="control-btn" title="Nyalakan / Matikan Musik Box">
+    <button id="musicToggleBtn" class="control-btn" title="Putar / Matikan Lagu (Best Part - Daniel Caesar)">
       <span id="musicIcon">🎵</span>
-      <span class="btn-tooltip">Musik Box</span>
+      <span class="btn-tooltip">Best Part (Instrumen)</span>
     </button>
-    <button id="customizerBtn" class="control-btn" title="Edit Isi Surat & Foto">
+    <button id="customizerBtn" class="control-btn" title="Edit Isi Surat, Foto & Musik">
       <span>✏️</span>
       <span class="btn-tooltip">Edit Surat</span>
     </button>
@@ -243,6 +243,18 @@
               <input type="file" id="filePhoto3" accept="image/*" class="file-input">
             </div>
           </div>
+        </div>
+
+        <div class="photo-upload-section" style="margin-top: 14px;">
+          <h4>🎵 Musik Latar (Best Part - Daniel Caesar):</h4>
+          <p class="small-text">Default: Instrumen Akustik "Best Part" (Web Audio). Kamu juga bisa memilih file MP3 lagumu sendiri:</p>
+          <div class="photo-input-item">
+            <label style="min-width: 80px;">Pilih MP3:</label>
+            <input type="file" id="fileAudio" accept="audio/*" class="file-input">
+          </div>
+          <p class="small-text" style="margin-top: 6px; font-style: italic; color: #888;">
+            💡 Tips: Atau cukup letakkan file lagu dengan nama <code>best-part.mp3</code> di folder ini, website akan otomatis memutarnya!
+          </p>
         </div>
 
       </div>
