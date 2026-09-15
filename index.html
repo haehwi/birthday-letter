@@ -253,7 +253,7 @@
             <input type="file" id="fileAudio" accept="audio/*" class="file-input">
           </div>
           <p class="small-text" style="margin-top: 6px; font-style: italic; color: #888;">
-            💡 Tips: Atau cukup letakkan file lagu dengan nama <code>best-part.mp3</code> di folder ini, website akan otomatis memutarnya!
+            💡 Tips: Atau cukup letakkan file lagu dengan nama <code>music/best-part.mp3</code>, website akan otomatis memutarnya!
           </p>
         </div>
 
@@ -265,8 +265,8 @@
     </div>
   </div>
 
-  <!-- Audio Element for Custom Music (Fallback to Web Audio Synth) -->
-  <audio id="bgAudio" loop preload="auto"></audio>
+  <!-- Audio Element for Background Music -->
+  <audio id="bgAudio" loop preload="auto" src="music/best-part.mp3"></audio>
 
   <script src="script.js"></script>
 </body>

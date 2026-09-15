@@ -146,8 +146,8 @@ function applyDataToDOM(data) {
   if (data.photo2 && polaroidImg2) polaroidImg2.src = data.photo2;
   if (data.photo3 && polaroidImg3) polaroidImg3.src = data.photo3;
 
-  // Load custom audio if stored
-  if (data.customAudio && bgAudio) bgAudio.src = data.customAudio;
+  // Load custom audio if stored, otherwise default to music/best-part.mp3
+  bgAudio.src = data.customAudio || "music/best-part.mp3";
 }
 
 function escapeHTML(str) {
@@ -409,9 +409,9 @@ function startMusic() {
   musicToggleBtn.classList.add("playing");
   musicIcon.textContent = "🎶";
 
-  // Check if custom audio or local best-part.mp3 is available
+  // Check if custom audio or local music/best-part.mp3 is available
   const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-  const audioSource = savedData.customAudio || "best-part.mp3";
+  const audioSource = savedData.customAudio || "music/best-part.mp3";
 
   if (!bgAudio.src || !bgAudio.src.includes(audioSource)) {
     bgAudio.src = audioSource;
@@ -701,7 +701,7 @@ resetDefaultsBtn.addEventListener("click", () => {
     polaroidImg1.src = "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&auto=format&fit=crop&q=80";
     polaroidImg2.src = "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=600&auto=format&fit=crop&q=80";
     polaroidImg3.src = "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=600&auto=format&fit=crop&q=80";
-    bgAudio.src = "best-part.mp3";
+    bgAudio.src = "music/best-part.mp3";
     if (fileAudio) fileAudio.value = "";
     closeModal();
   }
